@@ -1,53 +1,49 @@
-"use client"; // This is needed for client-side rendering
-import React, { useRef, useEffect } from "react";
-import LightGallery from "lightgallery/react";
-import "lightgallery/css/lightgallery.css"; // Import LightGallery styles
-import "lightgallery/css/lg-thumbnail.css"; // Import thumbnail styles
-import "lightgallery/css/lg-zoom.css"; // Import zoom styles
+"use client";
+
+// components/ImageGallery.js
+import React, { useState } from 'react';
+import FsLightbox from 'fslightbox-react';
 import { astroImageInfo } from "@/components/ImageInfo"; // Adjust your import as needed
 
-// Plugins
-import lgThumbnail from "lightgallery/plugins/thumbnail";
-import lgZoom from "lightgallery/plugins/zoom";
-
-const Gallery = () => {
-    const lightGalleryRef = useRef(null);
+const ImageGallery = () => {
+    const [toggler, setToggler] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0); // To keep track of the current index
 
     const images = astroImageInfo.map((image) => ({
         src: image.original,
-        thumb: image.original, // You can provide a different thumbnail if needed
-        alt: image.title,
+        title: image.title,
     }));
 
-    // Initialize LightGallery after the component is mounted
-    useEffect(() => {
-        if (lightGalleryRef.current) {
-            lightGalleryRef.current.addEventListener('onInit', () => {
-                console.log('LightGallery has been initialized');
-            });
-        }
-    }, []);
+    // Extract sources as an array of URLs for fslightbox
+    const sources = images.map(image => image.src);
 
     return (
         <div>
-            <LightGallery
-                ref={lightGalleryRef}
-                speed={500}
-                plugins={[lgThumbnail, lgZoom]}
-            >
+            <div className="grid grid-cols-3 gap-4">
                 {images.map((image, index) => (
-                    <a key={index} href={image.src} data-lg-size="1200-800">
+                    <div key={index}>
                         <img
-                            src={image.thumb}
-                            alt={image.alt}
-                            className="rounded shadow-lg cursor-pointer"
-                            style={{ width: "200px", margin: "10px" }}
+                            src={image.src}
+                            alt={`Gallery Image ${index + 1}`}
+                            className="cursor-pointer rounded shadow-lg"
+                            onClick={() => {
+                                setCurrentIndex(index); // Set the current index when clicked
+                                setToggler(!toggler); // Toggle the lightbox
+                            }}
+                            data-fslightbox="gallery"
                         />
-                    </a>
+                    </div>
                 ))}
-            </LightGallery>
+            </div>
+
+            <FsLightbox
+                toggler={toggler}
+                sources={sources} // Use the sources array here
+                onClose={() => setToggler(false)}
+                index={currentIndex} // Optional: Pass current index to open the correct image
+            />
         </div>
     );
 };
 
-export default Gallery;
+export default ImageGallery;
