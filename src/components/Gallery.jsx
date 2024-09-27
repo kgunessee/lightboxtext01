@@ -1,49 +1,35 @@
-"use client";
+"use client"
+import { useEffect } from "react";
+import { Fancybox } from "@fancyapps/ui";
+import "@fancyapps/ui/dist/fancybox/fancybox.css";
+import {astroImageInfo} from "@/components/ImageInfo";
 
-// components/ImageGallery.js
-import React, { useState } from 'react';
-import FsLightbox from 'fslightbox-react';
-import { astroImageInfo } from "@/components/ImageInfo"; // Adjust your import as needed
+const Gallery = () => {
+    useEffect(() => {
+        Fancybox.bind("[data-fancybox]", {});
 
-const ImageGallery = () => {
-    const [toggler, setToggler] = useState(false);
-    const [currentIndex, setCurrentIndex] = useState(0); // To keep track of the current index
-
-    const images = astroImageInfo.map((image) => ({
-        src: image.original,
-        title: image.title,
-    }));
-
-    // Extract sources as an array of URLs for fslightbox
-    const sources = images.map(image => image.src);
+        // Clean up Fancybox instance on component unmount
+        return () => {
+            Fancybox.destroy();
+        };
+    }, []);
 
     return (
-        <div>
-            <div className="grid grid-cols-3 gap-4">
-                {images.map((image, index) => (
-                    <div key={index}>
-                        <img
-                            src={image.src}
-                            alt={`Gallery Image ${index + 1}`}
-                            className="cursor-pointer rounded shadow-lg"
-                            onClick={() => {
-                                setCurrentIndex(index); // Set the current index when clicked
-                                setToggler(!toggler); // Toggle the lightbox
-                            }}
-                            data-fslightbox="gallery"
-                        />
-                    </div>
-                ))}
-            </div>
-
-            <FsLightbox
-                toggler={toggler}
-                sources={sources} // Use the sources array here
-                onClose={() => setToggler(false)}
-                index={currentIndex} // Optional: Pass current index to open the correct image
-            />
+        <div className="gallery flex flex-wrap gap-1">
+            {astroImageInfo.map(image => {
+                return (<a  data-fancybox="gallery" key={image.title}  href={image.original}> <img className={"w-10"} alt={image.title} src={image.original}/></a>)
+            })}
+            {/*<a href="/images/image1.jpg" data-fancybox="gallery">*/}
+            {/*    <img src="/images/thumb1.jpg" alt="Image 1" />*/}
+            {/*</a>*/}
+            {/*<a href="/images/image2.jpg" data-fancybox="gallery">*/}
+            {/*    <img src="/images/thumb2.jpg" alt="Image 2" />*/}
+            {/*</a>*/}
+            {/*<a href="/images/image3.jpg" data-fancybox="gallery">*/}
+            {/*    <img src="/images/thumb3.jpg" alt="Image 3" />*/}
+            {/*</a>*/}
         </div>
     );
 };
 
-export default ImageGallery;
+export default Gallery;
